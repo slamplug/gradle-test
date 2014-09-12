@@ -1,0 +1,45 @@
+apply plugin: 'ear'
+apply plugin: 'maven'
+
+version = '0.1-SNAPSHOT'
+
+repositories { 
+    mavenCentral() 
+}
+
+dependencies {
+    //following dependencies will become the ear modules and placed in the ear root
+    deploy project(path: ':test-web', configuration: 'archives')
+	
+	earlib 'log4j:log4j:1.2.16'
+	earlib 'javax.servlet:jstl:1.1.2'
+	earlib project(':test-jar')
+}
+
+ear {
+    appDirName 'src/main/app'  // use application metadata found in this folder
+    libDirName 'APP-INF/lib'  // put dependency libraries into APP-INF/lib inside the generated EAR;
+                                // also modify the generated deployment descriptor accordingly
+    deploymentDescriptor {  // custom entries for application.xml:
+        applicationName = "gradle-ejb-in-ear"
+        initializeInOrder = true
+        displayName = "gradle-ejb-in-ear"  // defaults to project.name
+        description = "Gradle Demo for EJB in EAR"  // defaults to project.description
+    }
+}
+
+uploadArchives {  
+    repositories {  
+        mavenDeployer {  
+            repository(url: "http://localhost:8081/nexus/content/repositories/releases") {
+				authentication(userName: "admin", password: "admin123")
+			}
+            repository(url: "http://localhost:8081/nexus/content/repositories/snapshots") {
+                authentication(userName: 'admin', password: 'admin123');  
+            }
+
+            pom.artifactId = "test-ear"
+            pom.groupId = "com.slamplug.rook"			
+        }  
+    }  
+}

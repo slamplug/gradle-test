@@ -1,0 +1,35 @@
+apply plugin: 'war'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.6
+version = '0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile( project(':test-jar') )
+    providedCompile 'javax.servlet:servlet-api:2.5'
+    runtime 'javax.servlet:jstl:1.1.2'
+}
+
+war { // this builds a skinny war, need to add libs to APP-INF/lib of ear
+    classpath = []
+}
+
+uploadArchives {  
+    repositories {  
+        mavenDeployer {  
+            repository(url: "http://localhost:8081/nexus/content/repositories/releases") {
+				authentication(userName: "admin", password: "admin123")
+			}
+            repository(url: "http://localhost:8081/nexus/content/repositories/snapshots") {
+                authentication(userName: 'admin', password: 'admin123');  
+            }
+
+            pom.artifactId = "test-war"
+            pom.groupId = "com.slamplug.rook"			
+        }  
+    }  
+}
